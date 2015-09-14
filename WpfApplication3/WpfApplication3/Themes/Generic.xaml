@@ -1,0 +1,72 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:WpfApplication3"
+    xmlns:Control ="clr-namespace:WpfApplication3.Controls">
+
+    <Style TargetType="{x:Type local:ComplexBar}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:ComplexBar}">
+                    <Grid Width="800" Height="50">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="425"/>
+                            <ColumnDefinition Width="50"/>
+                            <ColumnDefinition Width="75"/>
+                            <ColumnDefinition Width="50"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock x:Name="txtComplexCondition" Background="AliceBlue" Margin="5" Grid.Column="0"/>
+                        <Button x:Name="btnComplexCondition"  Grid.Column="1" Margin="5">
+                            <Button.Background>
+                                <LinearGradientBrush StartPoint="0.5,1.25168" EndPoint="0.5,-0.25168">
+                                    <LinearGradientBrush.GradientStops>
+                                        <GradientStop Color="Green"  Offset="0"/>
+                                        <GradientStop Color="LightGreen" Offset="0.748837"/>
+                                        <GradientStop Color="White" Offset="1"/>
+                                    </LinearGradientBrush.GradientStops>
+                                </LinearGradientBrush>
+                            </Button.Background>
+                        </Button>
+                        <ComboBox Margin="5" x:Name="cbbRelation" Grid.Column="2"/>
+                        <Button x:Name="btnDeleteCondition"  Grid.Column="3" Margin="5">
+                            <Button.Background>
+                                <LinearGradientBrush StartPoint="0.5,1.25168" EndPoint="0.5,-0.25168">
+                                    <LinearGradientBrush.GradientStops>
+                                        <GradientStop Color="Red"  Offset="0"/>
+                                        <GradientStop Color="#FFFF6D4D" Offset="0.748837"/>
+                                        <GradientStop Color="White" Offset="1"/>
+                                    </LinearGradientBrush.GradientStops>
+                                </LinearGradientBrush>
+                            </Button.Background>
+                        </Button>
+                        
+                    </Grid>
+
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type Control:SimpleConditionBar}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Control:SimpleConditionBar}">
+                    <Grid Height="50" Width="800">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="75"/>
+                            <ColumnDefinition Width="300"/>
+                            <ColumnDefinition Width="75"/>
+                            <ColumnDefinition Width="50"/>
+                        </Grid.ColumnDefinitions>
+                        <ComboBox Margin="5" x:Name="cbbField" />
+                        <ComboBox Margin="5" x:Name="cbbOperator" Grid.Column="1"/>
+                        <TextBox Margin="5" x:Name="txtValue" Grid.Column="2"/>
+                        <ComboBox Margin="5" x:Name="cbbRelation" Grid.Column="3"/>
+                        <Button Margin="5" x:Name="btnDelete" Grid.Column="4"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>
