@@ -1,0 +1,26 @@
+﻿<Window x:Class="WpfApplication3.Controls.EditConditionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="EditConditionWindow" Height="400" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="300"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+        <Grid x:Name="grdDisplay" HorizontalAlignment="Left" Height="240" Margin="10,10,0,0" VerticalAlignment="Top" Width="772">
+            <ScrollViewer >
+                <StackPanel x:Name="spDisplay"/>
+            </ScrollViewer>
+        </Grid>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="btnSimpleCondition" Content="添加普通条件" FontSize="20" Grid.Column="0" Margin="5" Click="btnSimpleCondition_Click"/>
+            <Button x:Name="btnComplexCondition" Content="添加复杂条件" FontSize="20" Grid.Column="1" Margin="5" Click="btnComplexCondition_Click" />
+            <Button x:Name="btnCreate" Grid.Column="2" Content="确定\返回" FontSize="20" Margin="5,0,5,5" Click="btnCreate_Click" Height="41" VerticalAlignment="Bottom"/>
+        </Grid>
+    </Grid>
+</Window>
