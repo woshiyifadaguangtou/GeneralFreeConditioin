@@ -31,7 +31,7 @@ namespace WpfApplication3
 
         private void btnSimpleCondition_Click(object sender, RoutedEventArgs e)
         {
-            SimpleConditionBar scb = new SimpleConditionBar(typeof(Customer));
+            SimpleConditionBar scb = new SimpleConditionBar(typeof(Customer),0);
             this.spDisplay.Children.Add(scb);
         }
 

@@ -22,7 +22,7 @@ namespace WpfApplication3.Controls
         System.Linq.Expressions.ParameterExpression parameter;
         System.Linq.Expressions.Expression expression;
 
-        public delegate void ReturnExpression(System.Linq.Expressions.Expression expression);
+        public delegate void ReturnExpression( List<Condition> conditionList);
         public event ReturnExpression ReturnExpressionEvent;
 
         List<Condition> conditionList;
@@ -41,6 +41,7 @@ namespace WpfApplication3.Controls
         }
         public EditConditionWindow()
         {
+            conditionList = new List<Condition>();
             InitializeComponent();
         }
 
@@ -81,7 +82,7 @@ namespace WpfApplication3.Controls
                 Query();
                 if (ReturnExpressionEvent != null)
                 {
-                    ReturnExpressionEvent(expression);
+                    ReturnExpressionEvent(conditionList);
                 }
             }
             catch(Exception ex)
@@ -96,7 +97,7 @@ namespace WpfApplication3.Controls
         /// </summary>
         private void Createscb()
         {
-            SimpleConditionBar scb = new SimpleConditionBar(TargetType);
+            SimpleConditionBar scb = new SimpleConditionBar(TargetType,level);
             this.spDisplay.Children.Add(scb);
         }
         /// <summary>
@@ -108,7 +109,17 @@ namespace WpfApplication3.Controls
             this.spDisplay.Children.Add(cb);
        
         }
-        private void Query() 
+
+        private void Query()
+        {
+            foreach (var uc in spDisplay.Children)
+            {
+                var c = ((ConditionBaseBar)uc);
+                this.ConditionList.AddRange(c.ConditionList);
+            }
+        }
+
+        private void QueryExpression() 
         {
             Dictionary<System.Linq.Expressions.Expression, string> expressions = new Dictionary<System.Linq.Expressions.Expression, string>();
             foreach (var uc in spDisplay.Children)

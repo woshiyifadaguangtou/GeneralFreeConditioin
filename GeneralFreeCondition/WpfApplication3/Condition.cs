@@ -41,7 +41,7 @@ namespace WpfApplication3
 
         ///   
         /// 
-        public string Level { get; set; }
+        public int Level { get; set; }
         ///   
         ///   
         ///   

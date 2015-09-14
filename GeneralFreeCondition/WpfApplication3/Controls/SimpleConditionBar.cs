@@ -58,16 +58,27 @@ namespace WpfApplication3.Controls
         ComboBox cbbRelation;
         Button btnDelete;
         TextBox txtValue;
-        
+        int Level;
         Condition condition;
+
+        public override List<Condition> ConditionList
+        {
+            get 
+            {
+                return new List<Condition> { condition };
+            }
+        }
+
+
         static SimpleConditionBar()
         {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(SimpleConditionBar), new FrameworkPropertyMetadata(typeof(SimpleConditionBar)));
         }
 
-        public SimpleConditionBar(Type type)
+        public SimpleConditionBar(Type type,int lv)
         {
             targettype = type;
+            Level = lv;
         }
         
         public override void OnApplyTemplate()
@@ -89,7 +100,7 @@ namespace WpfApplication3.Controls
         public void Init()
         {
             #region 字段列表
-            condition = new Condition();
+            condition = new Condition() { Level = this.Level };
             condition.Relation = "AND";
             Dictionary<string, string> Field = MakeDictionary(targettype,Resource1.ResourceManager);
             this.cbbField.ItemsSource = Field;

@@ -61,21 +61,22 @@ namespace WpfApplication3
 
         List<Condition> conditionList;
 
-        public List<Condition> ConditionList
+        public override List<Condition> ConditionList
         {
             get { return conditionList; }
-            set { conditionList = value; }
         }
 
 
         System.Linq.Expressions.ParameterExpression parameterExpression;
         static ComplexBar()
         {
+            
             DefaultStyleKeyProperty.OverrideMetadata(typeof(ComplexBar), new FrameworkPropertyMetadata(typeof(ComplexBar)));
         }
 
         public ComplexBar(System.Linq.Expressions.ParameterExpression p,Type type,int lv)
         {
+            conditionList = new List<Condition>();
             parameterExpression = p;
             targettype = type;
             level = lv;
@@ -151,12 +152,12 @@ namespace WpfApplication3
            // conditionExpreesion = ecw.Expression;
         }
 
-        void ecw_ReturnExpressionEvent(System.Linq.Expressions.Expression expression)
+        void ecw_ReturnExpressionEvent(List<Condition> conditionList)
         {
-            conditionExpreesion = expression;
-            this.txtComplexCondition.Text = expression.ToString();
+            this.ConditionList.AddRange(conditionList);
         }
 
+        
         
         public override string GetRelation()
         {

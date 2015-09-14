@@ -13,8 +13,11 @@ namespace WpfApplication3
 {
     public abstract class ConditionBaseBar :Control
     {
-        
 
+        public abstract List<Condition> ConditionList
+        {
+            get;
+        }
         
         public Expression ConditionExpreesion
         {

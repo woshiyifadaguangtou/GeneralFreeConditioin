@@ -35,7 +35,7 @@ namespace WpfApplication3
             InitDate();
         }
         List<Customer> customers;
-        List<Condition> conditions;
+        List<Condition> conditionList;
         public void InitDate()
         {
             customers = new List<Customer>()
@@ -46,7 +46,7 @@ namespace WpfApplication3
                 new Customer(){Name = "张六",Age =23,Sex = "女",Income =5000,Level =1},
                 new Customer(){Name = "张七",Age =24,Sex = "男",Income =6000,Level =1},
             };
-             conditions = new List<Condition>
+             conditionList = new List<Condition>
             {
                 //new Condition (){Field = "Sex",Operator="like",Value = "男",Relation="AND"},
                 //new Condition (){Field = "Age",Operator=">=",Value = "21",Relation="AND"},
@@ -68,13 +68,26 @@ namespace WpfApplication3
         {
             foreach (var uc in spDisplay.Children)
             {
-                conditions.Add(((UserControl1)uc).Condition);
+                conditionList.Add(((UserControl1)uc).Condition);
             }
-            var where = Condition.Match<Customer>(conditions, customers);
+            var where = Condition.Match<Customer>(conditionList, customers);
             var result = customers.Where(where);
         }
 
         private void Query()
+        {
+            conditionList.Clear();
+            foreach (var uc in spDisplay.Children)
+            {
+                var c = ((ConditionBaseBar)uc);
+                conditionList.AddRange(c.ConditionList);
+            }
+            foreach (var c in this.conditionList)
+            {
+                Debug.WriteLine(c.Field + " " + c.Operator + " " + c.Value + " " + c.Relation+ ""+c.Level);
+            }
+        }
+        private void QueryExpression()
         {
             Dictionary<System.Linq.Expressions.Expression, string> expressions = new Dictionary<System.Linq.Expressions.Expression, string>();
             System.Linq.Expressions.ParameterExpression parameter = System.Linq.Expressions.Expression.Parameter(typeof(Customer), "r");
@@ -117,7 +130,7 @@ namespace WpfApplication3
 
         private void Createscb()
         {
-            SimpleConditionBar scb = new SimpleConditionBar(typeof(Customer));
+            SimpleConditionBar scb = new SimpleConditionBar(typeof(Customer),0);
             this.spDisplay.Children.Add(scb);
         }
 
