@@ -41,12 +41,6 @@ namespace WpfApplication3
             
         }
 
-        
-        public string ConditionRelation
-        {
-            get { return conditonRelation; }
-        }
-
         public Type targettype
         {
             get;

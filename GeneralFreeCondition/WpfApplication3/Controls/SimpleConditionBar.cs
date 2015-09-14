@@ -201,6 +201,9 @@ namespace WpfApplication3.Controls
             return Condition.ConditionToExpression(targettype, condition, parameter);
         }
 
+
+
+
         public override string GetRelation()
         {
             return condition.Relation;

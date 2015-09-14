@@ -152,7 +152,7 @@ namespace WpfApplication3
 
         public System.Linq.Expressions.Expression GetExpression<T>()
         {
-                return Condition.ConditionToExpression<T>(condition, null);
+                return Condition.ConditionToExpression<T>(condition);
         }
     }
 }

@@ -70,7 +70,6 @@ namespace WpfApplication3
         System.Linq.Expressions.ParameterExpression parameterExpression;
         static ComplexBar()
         {
-            
             DefaultStyleKeyProperty.OverrideMetadata(typeof(ComplexBar), new FrameworkPropertyMetadata(typeof(ComplexBar)));
         }
 
@@ -101,6 +100,7 @@ namespace WpfApplication3
             this.cbbRelation.ItemsSource = relations;
             this.cbbRelation.DisplayMemberPath = "Key";
             this.cbbRelation.SelectedValuePath = "Value";
+            
             Binding RelationBinding = new Binding()
             {
                 Source = condition,
@@ -154,6 +154,7 @@ namespace WpfApplication3
 
         void ecw_ReturnExpressionEvent(List<Condition> conditionList)
         {
+            ConditionList.Clear();
             this.ConditionList.AddRange(conditionList);
         }
 

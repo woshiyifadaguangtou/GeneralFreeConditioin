@@ -38,6 +38,7 @@ namespace WpfApplication3
         List<Condition> conditionList;
         public void InitDate()
         {
+            Condition.Initparameter<Customer>();
             customers = new List<Customer>()
             {
                 new Customer(){Name = "张三",Age =20,Sex = "男",Income =2000,Level =1},
@@ -54,7 +55,7 @@ namespace WpfApplication3
                 //new Condition (){Field = "Income",Operator=">=",Value = "5000",Relation="AND"},
             };
 
-            
+             customers.Where(e => 1 == 1);
         }
 
         private void btnQuery_Click(object sender, RoutedEventArgs e)
@@ -64,51 +65,36 @@ namespace WpfApplication3
             Query();
         }
 
-        private void TestQuery()
-        {
-            foreach (var uc in spDisplay.Children)
-            {
-                conditionList.Add(((UserControl1)uc).Condition);
-            }
-            var where = Condition.Match<Customer>(conditionList, customers);
-            var result = customers.Where(where);
-        }
 
         private void Query()
         {
+            Queue<Condition> conditionQueue = new Queue<Condition>();
             conditionList.Clear();
             foreach (var uc in spDisplay.Children)
             {
                 var c = ((ConditionBaseBar)uc);
+                c.ConditionList.First().Relation = c.GetRelation();
                 conditionList.AddRange(c.ConditionList);
             }
             foreach (var c in this.conditionList)
             {
-                Debug.WriteLine(c.Field + " " + c.Operator + " " + c.Value + " " + c.Relation+ ""+c.Level);
+                conditionQueue.Enqueue(c);
+                Debug.WriteLine(c.Field + " " + c.Operator + " " + c.Value + " " + c.Relation+ " "+c.Level);
+                
+            }
+            try
+            {
+                var expression = Condition.GetExpression<Customer>(conditionQueue);
+                System.Linq.Expressions.Expression<Func<Customer, bool>> lambda = System.Linq.Expressions.Expression.Lambda<Func<Customer, bool>>(expression, Condition.parameter);
+                var where = lambda.Compile();
+                var result = customers.Where(where).ToList() ;
+            }
+            catch (Exception ex)
+            {
+ 
             }
         }
-        private void QueryExpression()
-        {
-            Dictionary<System.Linq.Expressions.Expression, string> expressions = new Dictionary<System.Linq.Expressions.Expression, string>();
-            System.Linq.Expressions.ParameterExpression parameter = System.Linq.Expressions.Expression.Parameter(typeof(Customer), "r");
-            foreach (var uc in spDisplay.Children)
-            {
-                var c = ((ConditionBaseBar)uc);
-                var ConditionExpreesion = c.GetExpression(Parameter);
-                var ConditionRelation = c.GetRelation();
-                expressions.Add(ConditionExpreesion, ConditionRelation);
-            }
 
-            var where = Condition.Match<Customer>(expressions, Parameter);
-
-            
-            var result = customers.Where(where);
-            var rlist = result.ToList();
-            foreach (var r in rlist) 
-            {
-                Debug.WriteLine(r.ToString());
-            }
-        }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
@@ -118,15 +104,7 @@ namespace WpfApplication3
             
         }
 
-        private void Createuc()
-        {
-            UserControl1 uc = new UserControl1(typeof(Customer));
-            uc.Delete = () =>
-            {
-                this.spDisplay.Children.Remove(uc);
-            };
-            this.spDisplay.Children.Add(uc);
-        }
+
 
         private void Createscb()
         {

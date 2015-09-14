@@ -12,10 +12,17 @@ namespace WpfApplication3
 {
     public class Condition
     {
+        public static ParameterExpression parameter ;
+        public bool IsComplex { get; set; }
+        public Expression expression { get; set; }
         /// 
 
         /// 字段  
         /// 
+        public static void Initparameter<T>()
+        {
+            parameter = Expression.Parameter(typeof(T), "r");
+        }
 
         public string Field { get; set; }
         /// 
@@ -47,41 +54,13 @@ namespace WpfApplication3
         ///   
         ///   
         ///   
-        public static Condition[] BuildConditions(string[] fileds, string[] operators, string[] values, string[] relations)
-        {
-            if (fileds == null || operators == null || values == null || relations == null)
-            {
-                return null;
-            }
-            Condition[] conditions = new Condition[fileds.Length];
-            try
-            {
-                for (int i = 0; i < conditions.Length; i++)
-                {
-                    conditions[i] = new Condition()
-                    {
-                        Field = fileds[i],
-                        Operator = operators[i],
-                        Value = values[i],
-                        Relation = relations[i]
-                    };
-                }
-            }
-            catch
-            {
-                return null;
-            }
-            return conditions;
-        }
+       
 
        
 
-        public static Expression ConditionToExpression<T>(Condition condition, Expression parameter)
+        public static Expression ConditionToExpression<T>(Condition condition)
         {
-            if (parameter == null)
-            {
-                parameter = Expression.Parameter(typeof(T), "r");
-            }
+            
             Expression result =null;
             Type type = typeof(T);
             PropertyInfo lpi = type.GetProperty(condition.Field);
@@ -148,81 +127,11 @@ namespace WpfApplication3
 
             return result;
         }
-        public static Func<T,bool> Match<T>(List<Condition> conditions,List<T> resource)
-        {
-            ParameterExpression parameter = Expression.Parameter(typeof(T),"r");
-            
-            Expression body = null;
-            foreach (var condition in conditions)
-            {
-                if (body == null)
-                {
-                    body = ConditionToExpression<T>(condition, parameter);
-                }
-                else
-                {
-                    Expression right = ConditionToExpression<T>(condition, parameter);
-                    body = condition.Relation.ToUpper().Equals("AND") ? Expression.And(body, right) : Expression.Or(body, right);
-                }
-            
-            }
-            Expression<Func<T, bool>> lambda = Expression.Lambda<Func<T, bool>>(body, parameter);
-            Expression<Func<Customer, bool>> lambda1 = e => e.Age > 20 & e.Income < 4000 & e.Level == 1;
-            var where = lambda.Compile();
-            Debug.WriteLine(body);
-            Debug.WriteLine(lambda);
-            Debug.WriteLine(where);
-            //var result =  resource.Where()
-            return where;
-        }
+      
 
-        public static Func<T, bool> Match<T>(Dictionary<Expression, string> conditions, ParameterExpression parameter)
-        {
-            
-            Expression result = null;
-            conditions = OrderConditions(conditions);
-            foreach (var conditon in conditions)
-            {
-                if (result == null)
-                {
-                    result = conditon.Key;
-                }
-                else
-                {
-                    result = conditon.Value.Equals("AND") ? Expression.And(result, conditon.Key) : Expression.Or(result, conditon.Key);
-                
-                   // result = conditon.Value.Equals("AND") ? Expression.AndAlso(result, conditon.Key) : Expression.OrElse(result, conditon.Key);
-                }
-            }
-            Expression<Func<T, bool>> lambda = Expression.Lambda<Func<T, bool>>(result, parameter);
-            
-            if (lambda.CanReduce)
-            {
-                lambda.Reduce();
-            }
-            var list = AnalysisExpression(result,"Begin");
-           
-            var where = lambda.Compile();
-            Debug.WriteLine(lambda.ToString());
-            return where;
-        }
+       
 
-        public static Expression CombineExpression(Dictionary<Expression, string> conditions, ParameterExpression parameter)
-        {
-            Expression result = null;
-            foreach (var conditon in conditions)
-            {
-                if (result == null)
-                {
-                    result = conditon.Key;
-                }
-                else
-                {
-                    result = conditon.Value.Equals("AND") ? Expression.And(result, conditon.Key) : Expression.Or(result, conditon.Key);
-                }
-            }
-            return result;
-        }
+      
 
         public static Dictionary<Expression,string> AnalysisExpression(Expression resource,string Relation)
         {
@@ -261,6 +170,141 @@ namespace WpfApplication3
             }
             return;
         }
+
+
+        public static Expression GetExpression<T>(Queue<Condition> conditionList)
+        {
+            var c = conditionList.Last();
+            //如果最后一个元素不是0级表达式 ,那么将导致循环不完整 于是添加0阶恒F表达式做或运算
+            if (c.Level != 0)
+            {
+                ConstantExpression left = Expression.Constant(1, typeof(int));
+                ConstantExpression right = Expression.Constant(2, typeof(int));
+                Condition lastCondition = new Condition()
+                {
+                    Relation = "OR",
+                    IsComplex = true,
+                    Level = 0,
+                    expression = Expression.Equal(left, right),
+                };
+                conditionList.Enqueue(lastCondition);
+            }
+
+            int CurrentLevel = 0;
+            Stack<Condition> conditionStack = new Stack<Condition>();
+            Stack<string> relationStack = new Stack<string>();
+            Stack<Condition> expressionStack = new Stack<Condition>();
+            while(conditionList.Count != 0)
+            {
+                var condition = conditionList.Peek();
+                #region 入栈
+                if (condition.Level >= CurrentLevel)
+                {
+                    
+                    conditionStack.Push(conditionList.Dequeue());
+                    CurrentLevel = condition.Level;
+                }
+
+                #endregion
+
+                #region 出栈
+                else
+                {
+                    Stack<Condition> CurrentConditionList = new Stack<Condition>();
+                    Condition newCondition = new Condition ();
+                    string relation = conditionStack.Peek().Relation;
+                    while(conditionStack.Peek().Level == CurrentLevel)
+                    {
+                        relation = conditionStack.Peek().Relation;
+                        CurrentConditionList.Push(conditionStack.Pop());
+                    }
+
+                    Condition resultCondition = Calculate<T>(CurrentConditionList, CurrentLevel);
+
+                    conditionStack.Push(resultCondition);
+                    CurrentLevel--;
+                }
+
+                #endregion 
+            }
+            if (conditionStack.Count == 1)
+                return conditionStack.First().expression;
+            else 
+            {
+                Stack<Condition> reStack = new Stack<Condition> ();
+                while(conditionStack.Count != 0)
+                {
+                    reStack.Push(conditionStack.Pop());
+                }
+                return Calculate<T>(reStack, 0).expression;
+            }
+        }
+
+        private static Condition Calculate<T>(Stack<Condition> CurrentConditionList,int level)
+        {
+            Stack<Condition> TempCondition = new Stack<Condition>();
+            TempCondition.Push(CurrentConditionList.Pop());
+            //与最外层的运算符
+            string Reltion = TempCondition.Peek().Relation;
+
+            while(CurrentConditionList.Count != 0)
+            {
+                var nextCondition = CurrentConditionList.Pop();
+                if (nextCondition.Relation == "AND")//先计算AND操作
+                {
+                    var CurrentCondition = TempCondition.Pop();
+                    var newexpresstion = TransForm<T>(CurrentCondition, nextCondition, "AND");
+                    Condition newCondition = new Condition()
+                    {
+                        Relation = CurrentCondition.Relation,
+                        expression = newexpresstion,
+                        Level = level,
+                        IsComplex = true
+                    };
+                    TempCondition.Push(newCondition);
+                }
+                else
+                {
+                    TempCondition.Push(nextCondition);
+                }
+            };
+            #region 接下来都是OR的操作
+            
+            while(TempCondition.Count >1)
+            {
+                var current = TempCondition.Pop();
+                var next = TempCondition.Pop();
+                Condition newCondition = new Condition()
+                {
+                    expression = TransForm<T>(current,next,current.Relation),
+                    Relation = next.Relation,
+                    Level = level,
+                    IsComplex = true,
+                };
+                TempCondition.Push(newCondition);
+            }
+
+            var result = TempCondition.First();
+            result.Level--;
+            #endregion
+            return result;
+        }
+
+        private static Expression TransForm<T>(Condition left,Condition right,string Relation)
+        {
+            if (left.expression == null && left.IsComplex == false)
+            {
+                left.expression = ConditionToExpression<T>(left);
+            }
+            if (right.expression == null && right.IsComplex == false)
+            {
+                right.expression = ConditionToExpression<T>(right);
+            }
+            var result = Relation.Equals("AND") ? Expression.And(left.expression, right.expression) : Expression.Or(left.expression, right.expression);
+            return result;
+        }
+
+        
     } 
 
 

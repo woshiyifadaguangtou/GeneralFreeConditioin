@@ -115,23 +115,11 @@ namespace WpfApplication3.Controls
             foreach (var uc in spDisplay.Children)
             {
                 var c = ((ConditionBaseBar)uc);
+                c.ConditionList.First().Relation = c.GetRelation();
                 this.ConditionList.AddRange(c.ConditionList);
             }
         }
 
-        private void QueryExpression() 
-        {
-            Dictionary<System.Linq.Expressions.Expression, string> expressions = new Dictionary<System.Linq.Expressions.Expression, string>();
-            foreach (var uc in spDisplay.Children)
-            {
-                var c = ((ConditionBaseBar)uc);
-                var ConditionExpreesion = c.GetExpression(parameter);
-                var ConditionRelation = c.GetRelation();
-                expressions.Add(ConditionExpreesion, ConditionRelation);
-            }
 
-            expression = Condition.CombineExpression(expressions, parameter);
-            
-        }
     }
 }
